@@ -15,13 +15,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.samzuhalsetiawan.qrstudio.presentation.theme.QRStudioTheme
 import com.samzuhalsetiawan.qrstudio.presentation.ui.component.card.FeatureCard
 
 @Composable
-fun DashboardScreen() {
-    val context = LocalContext.current
-
+fun DashboardScreen(
+    navigateToGenerateCodeScreen: () -> Unit = {},
+) {
     Column {
         Text(
             modifier = Modifier.padding(12.dp),
@@ -32,7 +34,9 @@ fun DashboardScreen() {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            FeatureCard {
+            FeatureCard(
+                onClick = { navigateToGenerateCodeScreen() }
+            ) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = null
@@ -54,5 +58,13 @@ fun DashboardScreen() {
                 Text("Share My QR")
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DashboardScreenPreview() {
+    QRStudioTheme {
+        DashboardScreen()
     }
 }

@@ -3,6 +3,11 @@ package com.samzuhalsetiawan.qrstudio.presentation.ui.component.bottomnavigation
 import android.widget.Toast
 import androidx.annotation.FloatRange
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
@@ -82,6 +87,12 @@ fun MainBottomNavigation(
         visible = currentNavBackStackEntry.isInListOf(
             Screen.DashboardScreen::class,
             Screen.SettingsScreen::class
+        ),
+        enter = fadeIn() + slideInVertically(
+            initialOffsetY = { it * 2 }
+        ),
+        exit = fadeOut() + slideOutVertically(
+            targetOffsetY = { it * 2 }
         )
     ) {
         NavigationBar {

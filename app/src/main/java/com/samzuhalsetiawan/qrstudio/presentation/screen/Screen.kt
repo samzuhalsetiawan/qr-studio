@@ -11,4 +11,7 @@ sealed interface Screen {
 
     @Serializable
     object SettingsScreen : Screen
+
+    @Serializable
+    object GenerateCodeScreen : Screen
 }
