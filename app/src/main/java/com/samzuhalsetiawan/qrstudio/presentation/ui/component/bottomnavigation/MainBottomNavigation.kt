@@ -1,6 +1,7 @@
 package com.samzuhalsetiawan.qrstudio.presentation.ui.component.bottomnavigation
 
 import android.widget.Toast
+import androidx.annotation.FloatRange
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -12,13 +13,17 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.google.android.gms.common.moduleinstall.InstallStatusListener
 import com.google.android.gms.common.moduleinstall.ModuleInstall
+import com.google.android.gms.common.moduleinstall.ModuleInstallRequest
+import com.google.android.gms.common.moduleinstall.ModuleInstallStatusUpdate
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
@@ -26,7 +31,7 @@ import com.samzuhalsetiawan.qrstudio.domain.utils.isEntryOf
 import com.samzuhalsetiawan.qrstudio.domain.utils.isInListOf
 import com.samzuhalsetiawan.qrstudio.domain.utils.isNotEntryOf
 import com.samzuhalsetiawan.qrstudio.presentation.screen.Screen
-import com.samzuhalsetiawan.qrstudio.presentation.ui.component.dialog.ScannerModuleDownloadDialog
+import com.samzuhalsetiawan.qrstudio.presentation.ui.component.dialog.DownloadingDialog
 
 @Composable
 fun MainBottomNavigation(
@@ -34,16 +39,45 @@ fun MainBottomNavigation(
 ) {
     val context = LocalContext.current
     val currentNavBackStackEntry by navController.currentBackStackEntryAsState()
+    var showDownloadDialog by remember { mutableStateOf(false) }
+    @FloatRange(from = 0.0, to = 1.0)
+    var downloadProgress by remember { mutableFloatStateOf(0f) }
     val options = remember {
         GmsBarcodeScannerOptions.Builder()
-            .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+            .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
             .build()
     }
     val barcodeScanner = remember(context) {
         GmsBarcodeScanning.getClient(context, options)
     }
-    val moduleInstallClient = ModuleInstall.getClient(context)
-    var showScannerModuleDownloadDialog by remember { mutableStateOf(false) }
+    val moduleInstallClient = remember(context) {
+        ModuleInstall.getClient(context)
+    }
+    val moduleInstallListener = remember {
+        object : InstallStatusListener {
+            override fun onInstallStatusUpdated(moduleInstallStatusUpdate: ModuleInstallStatusUpdate) {
+                moduleInstallStatusUpdate.progressInfo?.let {
+                    downloadProgress = (it.bytesDownloaded / it.totalBytesToDownload).toFloat()
+                }
+                if (isTerminateState(moduleInstallStatusUpdate.installState)) {
+                    showDownloadDialog = false
+                    moduleInstallClient.unregisterListener(this)
+                }
+            }
+            fun isTerminateState(@ModuleInstallStatusUpdate.InstallState state: Int): Boolean {
+                return state == ModuleInstallStatusUpdate.InstallState.STATE_CANCELED ||
+                        state == ModuleInstallStatusUpdate.InstallState.STATE_COMPLETED ||
+                        state == ModuleInstallStatusUpdate.InstallState.STATE_FAILED
+            }
+        }
+    }
+    val moduleInstallRequest = remember(barcodeScanner, moduleInstallListener) {
+        ModuleInstallRequest.newBuilder()
+            .addApi(barcodeScanner)
+            .setListener(moduleInstallListener)
+            .build()
+    }
+
     AnimatedVisibility(
         visible = currentNavBackStackEntry.isInListOf(
             Screen.DashboardScreen::class,
@@ -91,7 +125,28 @@ fun MainBottomNavigation(
                                         throw exception
                                     }
                             } else {
-                                showScannerModuleDownloadDialog = true
+                                moduleInstallClient
+                                    .installModules(moduleInstallRequest)
+                                    .addOnSuccessListener { moduleInstallResponse ->
+                                        if (moduleInstallResponse.areModulesAlreadyInstalled()) {
+                                            barcodeScanner.startScan()
+                                                .addOnSuccessListener { barcode ->
+                                                    val value = barcode.rawValue
+                                                    Toast.makeText(context, value, Toast.LENGTH_LONG).show()
+                                                }
+                                                .addOnCanceledListener {
+                                                    Toast.makeText(context, "Canceled", Toast.LENGTH_LONG).show()
+                                                }
+                                                .addOnFailureListener { exception ->
+                                                    throw exception
+                                                }
+                                        } else {
+                                            showDownloadDialog = true
+                                        }
+                                    }
+                                    .addOnFailureListener { exception ->
+                                        throw exception
+                                    }
                             }
                         }
                         .addOnFailureListener { exception ->
@@ -129,25 +184,13 @@ fun MainBottomNavigation(
             )
         }
     }
-    if (showScannerModuleDownloadDialog) {
-        ScannerModuleDownloadDialog(
-            onDismissRequest = { showScannerModuleDownloadDialog = false },
-            moduleInstallClient = moduleInstallClient,
-            barcodeScanner = barcodeScanner,
-            onModuleInstalled = {
-                showScannerModuleDownloadDialog = false
-                barcodeScanner.startScan()
-                    .addOnSuccessListener { barcode ->
-                        val value = barcode.rawValue
-                        Toast.makeText(context, value, Toast.LENGTH_LONG).show()
-                    }
-                    .addOnCanceledListener {
-                        Toast.makeText(context, "Canceled", Toast.LENGTH_LONG).show()
-                    }
-                    .addOnFailureListener { exception ->
-                        throw exception
-                    }
+    if (showDownloadDialog) {
+        DownloadingDialog(
+            onDismissRequest = {
+                showDownloadDialog = false
             },
+            moduleName = "Google Scanner",
+            progress = downloadProgress
         )
     }
 }

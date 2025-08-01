@@ -11,6 +11,8 @@ composeBom = "2025.07.00"
 composeNavigation = "2.9.3"
 playServicesCodeScanner = "16.1.0"
 playServicesBase = "18.7.2"
+zxing = "3.5.3"
+zxingAndroid = "3.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -30,6 +32,8 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "composeNavigation" }
 google-playServices-codeScanner = { group = "com.google.android.gms", name = "play-services-code-scanner", version.ref = "playServicesCodeScanner" }
 google-playServices-base = { group = "com.google.android.gms", name = "play-services-base", version.ref = "playServicesBase" }
+google-zxing = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
+google-zxing-android = { group = "com.google.zxing", name = "android-core", version.ref = "zxingAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

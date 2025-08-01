@@ -64,4 +64,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.google.playServices.codeScanner)
     implementation(libs.google.playServices.base)
+    implementation(libs.google.zxing)
+    implementation(libs.google.zxing.android)
 }
