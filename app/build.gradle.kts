@@ -66,4 +66,8 @@ dependencies {
     implementation(libs.google.playServices.base)
     implementation(libs.google.zxing)
     implementation(libs.google.zxing.android)
+    implementation(libs.kotlinx.coroutines.playServices)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.compose)
+    implementation(libs.koin.compose.navigation)
 }

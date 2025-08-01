@@ -34,15 +34,16 @@ import com.samzuhalsetiawan.qrstudio.presentation.screen.scanner.ScannerScreen
 import com.samzuhalsetiawan.qrstudio.presentation.screen.settings.SettingsScreen
 import com.samzuhalsetiawan.qrstudio.presentation.theme.QRStudioTheme
 import com.samzuhalsetiawan.qrstudio.presentation.ui.component.bottomnavigation.MainBottomNavigation
+import org.koin.androidx.compose.KoinAndroidContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val navController = rememberNavController()
-            val navGraph = rememberMainNavGraph(navController)
             QRStudioTheme {
+                val navController = rememberNavController()
+                val navGraph = rememberMainNavGraph(navController)
                 Scaffold(
                     bottomBar = { MainBottomNavigation(navController) }
                 ) { paddingValues ->

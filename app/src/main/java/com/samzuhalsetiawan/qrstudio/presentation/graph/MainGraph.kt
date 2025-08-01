@@ -14,6 +14,7 @@ import com.samzuhalsetiawan.qrstudio.presentation.screen.generatecode.GenerateCo
 import com.samzuhalsetiawan.qrstudio.presentation.screen.generatecode.GenerateCodeScreenViewModel
 import com.samzuhalsetiawan.qrstudio.presentation.screen.scanner.ScannerScreen
 import com.samzuhalsetiawan.qrstudio.presentation.screen.settings.SettingsScreen
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun rememberMainNavGraph(
@@ -35,7 +36,7 @@ fun rememberMainNavGraph(
                 SettingsScreen()
             }
             composable<Screen.GenerateCodeScreen> {
-                val viewModel = viewModel<GenerateCodeScreenViewModel>()
+                val viewModel: GenerateCodeScreenViewModel = koinViewModel()
                 GenerateCodeScreen(viewModel)
             }
         }

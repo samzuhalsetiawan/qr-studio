@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -29,6 +30,7 @@ import com.google.android.gms.common.moduleinstall.InstallStatusListener
 import com.google.android.gms.common.moduleinstall.ModuleInstall
 import com.google.android.gms.common.moduleinstall.ModuleInstallRequest
 import com.google.android.gms.common.moduleinstall.ModuleInstallStatusUpdate
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
@@ -37,12 +39,16 @@ import com.samzuhalsetiawan.qrstudio.domain.utils.isInListOf
 import com.samzuhalsetiawan.qrstudio.domain.utils.isNotEntryOf
 import com.samzuhalsetiawan.qrstudio.presentation.screen.Screen
 import com.samzuhalsetiawan.qrstudio.presentation.ui.component.dialog.DownloadingDialog
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.lang.Exception
 
 @Composable
 fun MainBottomNavigation(
     navController: NavHostController,
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val currentNavBackStackEntry by navController.currentBackStackEntryAsState()
     var showDownloadDialog by remember { mutableStateOf(false) }
     @FloatRange(from = 0.0, to = 1.0)
@@ -120,49 +126,28 @@ fun MainBottomNavigation(
             NavigationBarItem(
                 selected = false,
                 onClick = {
-                    moduleInstallClient
-                        .areModulesAvailable(barcodeScanner)
-                        .addOnSuccessListener {  moduleAvailabilityResponse ->
+                    coroutineScope.launch {
+                        suspend fun launchScanner() {
+                            val barcode = barcodeScanner.startScan().await()
+                            val value = barcode.rawValue
+                            Toast.makeText(context, value, Toast.LENGTH_LONG).show()
+                        }
+                        try {
+                            val moduleAvailabilityResponse = moduleInstallClient.areModulesAvailable(barcodeScanner).await()
                             if (moduleAvailabilityResponse.areModulesAvailable()) {
-                                barcodeScanner.startScan()
-                                    .addOnSuccessListener { barcode ->
-                                        val value = barcode.rawValue
-                                        Toast.makeText(context, value, Toast.LENGTH_LONG).show()
-                                    }
-                                    .addOnCanceledListener {
-                                        Toast.makeText(context, "Canceled", Toast.LENGTH_LONG).show()
-                                    }
-                                    .addOnFailureListener { exception ->
-                                        throw exception
-                                    }
+                                launchScanner()
                             } else {
-                                moduleInstallClient
-                                    .installModules(moduleInstallRequest)
-                                    .addOnSuccessListener { moduleInstallResponse ->
-                                        if (moduleInstallResponse.areModulesAlreadyInstalled()) {
-                                            barcodeScanner.startScan()
-                                                .addOnSuccessListener { barcode ->
-                                                    val value = barcode.rawValue
-                                                    Toast.makeText(context, value, Toast.LENGTH_LONG).show()
-                                                }
-                                                .addOnCanceledListener {
-                                                    Toast.makeText(context, "Canceled", Toast.LENGTH_LONG).show()
-                                                }
-                                                .addOnFailureListener { exception ->
-                                                    throw exception
-                                                }
-                                        } else {
-                                            showDownloadDialog = true
-                                        }
-                                    }
-                                    .addOnFailureListener { exception ->
-                                        throw exception
-                                    }
+                                val moduleInstallResponse = moduleInstallClient.installModules(moduleInstallRequest).await()
+                                if (moduleInstallResponse.areModulesAlreadyInstalled()) {
+                                    launchScanner()
+                                } else {
+                                    showDownloadDialog = true
+                                }
                             }
+                        } catch (e: Exception) {
+                            throw e
                         }
-                        .addOnFailureListener { exception ->
-                            throw exception
-                        }
+                    }
                 },
                 icon = {
                     Icon(

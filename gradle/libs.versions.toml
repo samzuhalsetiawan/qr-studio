@@ -13,6 +13,8 @@ playServicesCodeScanner = "16.1.0"
 playServicesBase = "18.7.2"
 zxing = "3.5.3"
 zxingAndroid = "3.3.0"
+coroutinesPlayServices = "1.10.2"
+koinBom = "4.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,6 +36,10 @@ google-playServices-codeScanner = { group = "com.google.android.gms", name = "pl
 google-playServices-base = { group = "com.google.android.gms", name = "play-services-base", version.ref = "playServicesBase" }
 google-zxing = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
 google-zxing-android = { group = "com.google.zxing", name = "android-core", version.ref = "zxingAndroid" }
+kotlinx-coroutines-playServices = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutinesPlayServices" }
+koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koinBom" }
+koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koinBom" }
+koin-compose-navigation = { group = "io.insert-koin", name = "koin-androidx-compose-navigation", version.ref = "koinBom" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
