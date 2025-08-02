@@ -1,4 +1,4 @@
-package com.samzuhalsetiawan.qrstudio.presentation.screen
+package com.samzuhalsetiawan.qrstudio.domain.navigation
 
 import kotlinx.serialization.Serializable
 

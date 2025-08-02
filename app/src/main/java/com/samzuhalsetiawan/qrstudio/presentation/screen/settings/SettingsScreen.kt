@@ -4,6 +4,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(
+    state: SettingsScreenState,
+    onEvent: (SettingsScreenEvent) -> Unit
+) {
     Text("Settings Screen")
 }

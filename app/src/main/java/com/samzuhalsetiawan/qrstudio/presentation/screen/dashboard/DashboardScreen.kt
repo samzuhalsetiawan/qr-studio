@@ -14,7 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.samzuhalsetiawan.qrstudio.presentation.theme.QRStudioTheme
@@ -22,7 +21,8 @@ import com.samzuhalsetiawan.qrstudio.presentation.ui.component.card.FeatureCard
 
 @Composable
 fun DashboardScreen(
-    navigateToGenerateCodeScreen: () -> Unit = {},
+    state: DashboardScreenState,
+    onEvent: (DashboardScreenEvent) -> Unit,
 ) {
     Column {
         Text(
@@ -35,7 +35,7 @@ fun DashboardScreen(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             FeatureCard(
-                onClick = { navigateToGenerateCodeScreen() }
+                onClick = { onEvent(DashboardScreenEvent.OnGenerateCodeButtonClick) }
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -65,6 +65,9 @@ fun DashboardScreen(
 @Composable
 private fun DashboardScreenPreview() {
     QRStudioTheme {
-        DashboardScreen()
+        DashboardScreen(
+            state = DashboardScreenState(),
+            onEvent = {}
+        )
     }
 }

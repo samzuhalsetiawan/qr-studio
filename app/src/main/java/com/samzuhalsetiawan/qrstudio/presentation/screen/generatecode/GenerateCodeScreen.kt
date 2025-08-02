@@ -6,26 +6,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.samzuhalsetiawan.qrstudio.presentation.theme.QRStudioTheme
+
 
 @Composable
 fun GenerateCodeScreen(
-    viewModel: GenerateCodeScreenViewModel,
-) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    GenerateCodeScreen(
-        state = state,
-        onEvent = viewModel::onEvent
-    )
-}
-
-@Composable
-private fun GenerateCodeScreen(
     state: GenerateCodeScreenState,
     onEvent: (GenerateCodeScreenEvent) -> Unit,
 ) {

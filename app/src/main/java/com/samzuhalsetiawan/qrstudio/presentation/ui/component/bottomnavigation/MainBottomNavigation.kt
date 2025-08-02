@@ -37,7 +37,7 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import com.samzuhalsetiawan.qrstudio.domain.utils.isEntryOf
 import com.samzuhalsetiawan.qrstudio.domain.utils.isInListOf
 import com.samzuhalsetiawan.qrstudio.domain.utils.isNotEntryOf
-import com.samzuhalsetiawan.qrstudio.presentation.screen.Screen
+import com.samzuhalsetiawan.qrstudio.domain.navigation.Screen
 import com.samzuhalsetiawan.qrstudio.presentation.ui.component.dialog.DownloadingDialog
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await

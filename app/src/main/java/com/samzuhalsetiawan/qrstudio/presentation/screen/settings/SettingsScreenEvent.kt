@@ -1,0 +1,3 @@
+package com.samzuhalsetiawan.qrstudio.presentation.screen.settings
+
+sealed interface SettingsScreenEvent
